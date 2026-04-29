@@ -41,7 +41,7 @@ const AdminOrders = () => {
   const updateStatus = async (id, status) => {
     try {
       const res = await fetch(`http://localhost:3000/api/orders/${id}/status`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
