@@ -22,8 +22,6 @@ export function seedProducts() {
       `);
 
       const products = [
-        ["Black Cotton Baseball Cap", "Classic black baseball cap", 24.99, "hat", "black", "casual", 50, "https://m.media-amazon.com/images/I/816vLoiLvRL._AC_UY1000_.jpg"],
-        ["Dark Grey Beanie", "Warm knitted beanie", 19.99, "hat", "grey", "casual", 35, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpzIK4j6tyD3NmBi9Wh9CbrrKIqdy-YLIdAA&s"],
         ["Wide-Leg Linen Trousers", "Breathable beige linen trousers", 69.99, "trousers", "beige", "casual", 25, "https://static.reserved.com/media/catalog/product/cache/1200/a4e40ebdc3e371adff845072e1c73f37/5/6/568EI-08X-005-1-968198_2.jpg"],
         ["Olive Green Chino Pants", "Comfortable chino pants", 59.99, "trousers", "olive", "casual", 40, "https://img01.ztat.net/article/spp-media-p1/105c08c643b7453eb9fd6cc9a930a0c7/71beaf9971354b2dbb1057f9bbf3bd11.jpg?imwidth=1800"],
         ["Silver Chain Necklace", "Elegant silver chain", 49.99, "jewelry", "silver", "classic", 100, "https://flaireaccessories.com/cdn/shop/files/thin-curb-silver-chain-unisex-n102-891762.png?v=1734887401&width=1200"],
@@ -39,6 +37,8 @@ export function seedProducts() {
         ["Elegant Evening Clutch", "Sparkling party clutch", 45.00, "bag", "silver", "formal", 25, "https://i.ebayimg.com/images/g/e2wAAeSwWABnz~FV/s-l1200.jpg"],
         ["Aviator Sunglasses", "Classic metal frame", 29.99, "accessories", "gold", "classic", 80, "https://www.williampainter.com/cdn/shop/products/Hughes-gold-45.jpg?v=1762525415"],
         ["Minimalist Wristwatch", "Leather strap watch", 150.00, "accessories", "black", "elegant", 10, "https://objectstorage.ap-mumbai-1.oraclecloud.com/n/softlogicbicloud/b/cdn/o/products/FS5308--1--1723714095.jpeg"]
+        ["Black Cotton Baseball Cap", "Classic black baseball cap", 24.99, "hat", "black", "casual", 50, "https://m.media-amazon.com/images/I/816vLoiLvRL._AC_UY1000_.jpg"],
+        ["Dark Grey Beanie", "Warm knitted beanie", 19.99, "hat", "grey", "casual", 35, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpzIK4j6tyD3NmBi9Wh9CbrrKIqdy-YLIdAA&s"],
       ];
 
       products.forEach(p => stmt.run(p));
