@@ -36,9 +36,9 @@ export function seedProducts() {
         ["Canvas Tote Bag", "Eco-friendly everyday bag", 15.99, "bag", "cream", "casual", 150, "https://www.vintplus.com/cdn/shop/files/161.jpg?v=1768815717&width=1080"],
         ["Elegant Evening Clutch", "Sparkling party clutch", 45.00, "bag", "silver", "formal", 25, "https://i.ebayimg.com/images/g/e2wAAeSwWABnz~FV/s-l1200.jpg"],
         ["Aviator Sunglasses", "Classic metal frame", 29.99, "accessories", "gold", "classic", 80, "https://www.williampainter.com/cdn/shop/products/Hughes-gold-45.jpg?v=1762525415"],
-        ["Minimalist Wristwatch", "Leather strap watch", 150.00, "accessories", "black", "elegant", 10, "https://objectstorage.ap-mumbai-1.oraclecloud.com/n/softlogicbicloud/b/cdn/o/products/FS5308--1--1723714095.jpeg"]
+        ["Minimalist Wristwatch", "Leather strap watch", 150.00, "accessories", "black", "elegant", 10, "https://objectstorage.ap-mumbai-1.oraclecloud.com/n/softlogicbicloud/b/cdn/o/products/FS5308--1--1723714095.jpeg"],
         ["Black Cotton Baseball Cap", "Classic black baseball cap", 24.99, "hat", "black", "casual", 50, "https://m.media-amazon.com/images/I/816vLoiLvRL._AC_UY1000_.jpg"],
-        ["Dark Grey Beanie", "Warm knitted beanie", 19.99, "hat", "grey", "casual", 35, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpzIK4j6tyD3NmBi9Wh9CbrrKIqdy-YLIdAA&s"],
+        ["Dark Grey Beanie", "Warm knitted beanie", 19.99, "hat", "grey", "casual", 35, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpzIK4j6tyD3NmBi9Wh9CbrrKIqdy-YLIdAA&s"]
       ];
 
       products.forEach(p => stmt.run(p));
