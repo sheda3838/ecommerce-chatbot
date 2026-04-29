@@ -7,7 +7,7 @@ const router = express.Router();
 // POST /api/admin/login
 router.post("/login", (req, res) => {
   const { username, password } = req.body;
-  if (username === "admin" && password === "password") {
+  if (username === "admin" && password === "admin123") {
     // Return a dummy token for frontend validation
     return res.json({ token: "admin-secret-token-123", message: "Login successful" });
   }
@@ -49,8 +49,45 @@ router.get("/stats", (req, res) => {
   });
 });
 
-// 3. Sales Insights
-// GET /api/admin/revenue
+// 3. Dashboard Statistics
+// GET /api/admin/stats
+router.get("/stats", (req, res) => {
+  const stats = {
+    total_products: 0,
+    total_orders: 0,
+    total_revenue: 0,
+    pending_orders: 0,
+    recent_orders: []
+  };
+
+  db.serialize(() => {
+    // 1. Total Products
+    db.get("SELECT COUNT(*) as count FROM products", (err, row) => {
+      if (row) stats.total_products = row.count;
+    });
+
+    // 2. Total Orders & Pending
+    db.get("SELECT COUNT(*) as count, SUM(total_amount) as revenue FROM orders", (err, row) => {
+      if (row) {
+        stats.total_orders = row.count;
+        stats.total_revenue = row.revenue || 0;
+      }
+    });
+
+    // 3. Pending Orders
+    db.get("SELECT COUNT(*) as count FROM orders WHERE status = 'pending'", (err, row) => {
+      if (row) stats.pending_orders = row.count;
+    });
+
+    // 4. Recent Orders
+    db.all("SELECT * FROM orders ORDER BY created_at DESC LIMIT 5", (err, rows) => {
+      stats.recent_orders = rows || [];
+      res.json(stats);
+    });
+  });
+});
+
+// 4. Sales Insights (Legacy/Specific)
 router.get("/revenue", (req, res) => {
   db.serialize(() => {
     let revenueData = {};
@@ -74,6 +111,22 @@ router.get("/revenue", (req, res) => {
         res.json(revenueData);
       });
     });
+  });
+});
+
+// GET /api/admin/chats
+router.get("/chats", (req, res) => {
+  const query = `
+    SELECT m.id, s.session_token as session, m.role, m.content, m.created_at as timestamp 
+    FROM chat_messages m
+    JOIN chat_sessions s ON m.session_id = s.id
+    ORDER BY m.created_at DESC
+  `;
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
   });
 });
 

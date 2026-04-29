@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Lock, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,17 @@ const AdminModal = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    } else {
+      setUsername('');
+      setPassword('');
+      setError('');
+    }
+  }, [isOpen]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -86,6 +97,7 @@ const AdminModal = ({ isOpen, onClose }) => {
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Username</label>
               <input 
+                ref={inputRef}
                 type="text" 
                 required
                 value={username}

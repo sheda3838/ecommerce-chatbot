@@ -2,8 +2,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { Link } from 'react-router-dom';
 
-const ProductCard = ({ product, onClick }) => {
+const ProductCard = ({ product }) => {
   const { cart, addToCart, updateQuantity, setQuantity } = useCart();
   const cartItem = cart.find(item => item.product_id === product.id);
 
@@ -12,12 +13,12 @@ const ProductCard = ({ product, onClick }) => {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="bg-white rounded-[2rem] p-4 shadow-sm border border-gray-100 hover:shadow-xl transition-all group"
+      className="bg-white rounded-[2rem] p-4 shadow-sm border border-gray-100 hover:shadow-xl transition-all group flex flex-col"
     >
-      {/* Image Area - clickable to open modal */}
-      <div 
-        className="w-full h-64 bg-gray-50 rounded-2xl overflow-hidden cursor-pointer relative flex items-center justify-center p-4"
-        onClick={() => onClick(product)}
+      {/* Image Area - Link to product detail page */}
+      <Link 
+        to={`/product/${product.id}`}
+        className="w-full h-64 bg-gray-50 rounded-2xl overflow-hidden relative flex items-center justify-center p-4 block"
       >
         <img 
           src={product.image_url} 
@@ -28,7 +29,7 @@ const ProductCard = ({ product, onClick }) => {
         <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-gray-900 shadow-sm">
           {product.category}
         </div>
-      </div>
+      </Link>
 
       {/* Info Area */}
       <div className="mt-6 px-2">

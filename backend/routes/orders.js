@@ -53,7 +53,7 @@ router.get("/:id", (req, res) => {
 
 // PUT update order status
 // PUT /api/orders/:id/status
-router.patch("/:id/status", (req, res) => {
+router.put("/:id/status", (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 

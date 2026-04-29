@@ -47,8 +47,17 @@ router.get("/:id", (req, res) => {
 router.post("/", (req, res) => {
   const { name, description, price, category, color, style, image_url, stock_quantity } = req.body;
   
-  if (!name || price === undefined) {
-    return res.status(400).json({ error: "Name and price are required" });
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: "Name is required" });
+  }
+  if (!category || !category.trim()) {
+    return res.status(400).json({ error: "Category is required for the AI to find this product" });
+  }
+  if (price === undefined || isNaN(price) || Number(price) <= 0) {
+    return res.status(400).json({ error: "A valid price greater than 0 is required" });
+  }
+  if (stock_quantity === undefined || isNaN(stock_quantity) || Number(stock_quantity) < 0) {
+    return res.status(400).json({ error: "A valid stock quantity (0 or greater) is required" });
   }
 
   const query = `
@@ -125,7 +134,7 @@ router.delete("/:id", (req, res) => {
 // SEARCH PRODUCTS (IMPORTANT FOR CHATBOT LATER)
 // ========================
 router.post("/search", (req, res) => {
-  const { category, color, max_price, style } = req.body;
+  const { category, color, max_price, min_price, style, occasion } = req.body;
 
   let query = "SELECT * FROM products WHERE 1=1";
   let params = [];
@@ -136,8 +145,8 @@ router.post("/search", (req, res) => {
   }
 
   if (color) {
-    query += " AND (name LIKE ? OR description LIKE ?)";
-    params.push(`%${color}%`, `%${color}%`);
+    query += " AND (name LIKE ? OR description LIKE ? OR color LIKE ?)";
+    params.push(`%${color}%`, `%${color}%`, `%${color}%`);
   }
 
   if (max_price) {
@@ -145,9 +154,19 @@ router.post("/search", (req, res) => {
     params.push(max_price);
   }
 
+  if (min_price) {
+    query += " AND price >= ?";
+    params.push(min_price);
+  }
+
   if (style) {
-    query += " AND style = ?";
-    params.push(style);
+    query += " AND (name LIKE ? OR description LIKE ? OR style LIKE ?)";
+    params.push(`%${style}%`, `%${style}%`, `%${style}%`);
+  }
+
+  if (occasion) {
+    query += " AND (name LIKE ? OR description LIKE ?)";
+    params.push(`%${occasion}%`, `%${occasion}%`);
   }
 
   query += " LIMIT 10";

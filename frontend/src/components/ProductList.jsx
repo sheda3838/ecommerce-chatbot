@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ProductCard from './ProductCard';
-import ProductModal from './ProductModal';
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   useEffect(() => {
@@ -60,21 +58,12 @@ const ProductList = () => {
               <ProductCard 
                 key={product.id} 
                 product={product} 
-                onClick={setSelectedProduct}
               />
             ))}
           </div>
         )}
 
       </div>
-
-      {/* Modal */}
-      {selectedProduct && (
-        <ProductModal 
-          product={selectedProduct} 
-          onClose={() => setSelectedProduct(null)} 
-        />
-      )}
     </div>
   );
 };

@@ -59,9 +59,27 @@ const AdminProducts = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Frontend Validation
+    const priceVal = parseFloat(formData.price);
+    const stockVal = parseInt(formData.stock_quantity, 10);
+    
+    if (!formData.name.trim()) {
+      return alert("Name is required");
+    }
+    if (!formData.category.trim()) {
+      return alert("Category is required for the AI to locate this product");
+    }
+    if (isNaN(priceVal) || priceVal <= 0) {
+      return alert("Price must be a valid number greater than 0");
+    }
+    if (isNaN(stockVal) || stockVal < 0) {
+      return alert("Stock quantity must be a valid number (0 or greater)");
+    }
+
     setProcessing(true);
 
-    const payload = { ...formData, price: parseFloat(formData.price), stock_quantity: parseInt(formData.stock_quantity, 10) };
+    const payload = { ...formData, price: priceVal, stock_quantity: stockVal };
 
     try {
       const url = editingId ? `http://localhost:3000/api/products/${editingId}` : 'http://localhost:3000/api/products';

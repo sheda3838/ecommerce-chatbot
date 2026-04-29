@@ -1,48 +1,76 @@
 import db from "./db.js";
 
-db.serialize(() => {
-  console.log("Creating tables...");
+export function initDb() {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      console.log("Creating tables...");
 
-  db.run(`
-    CREATE TABLE IF NOT EXISTS products (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      description TEXT,
-      price REAL NOT NULL,
-      category TEXT,
-      color TEXT,
-      style TEXT,
-      image_url TEXT,
-      stock_quantity INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
+      db.run(`
+        CREATE TABLE IF NOT EXISTS products (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          description TEXT,
+          price REAL NOT NULL,
+          category TEXT,
+          color TEXT,
+          style TEXT,
+          image_url TEXT,
+          stock_quantity INTEGER DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
 
-  db.run(`
-    CREATE TABLE IF NOT EXISTS orders (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      order_number TEXT UNIQUE,
-      customer_name TEXT NOT NULL,
-      customer_email TEXT NOT NULL,
-      customer_address TEXT NOT NULL,
-      total_amount REAL NOT NULL,
-      status TEXT DEFAULT 'pending',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
+      db.run(`
+        CREATE TABLE IF NOT EXISTS orders (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          order_number TEXT UNIQUE,
+          customer_name TEXT NOT NULL,
+          customer_email TEXT NOT NULL,
+          customer_address TEXT NOT NULL,
+          total_amount REAL NOT NULL,
+          status TEXT DEFAULT 'pending',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
 
-  db.run(`
-    CREATE TABLE IF NOT EXISTS order_items (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      order_id INTEGER,
-      product_name TEXT,
-      product_price REAL,
-      quantity INTEGER,
-      FOREIGN KEY (order_id) REFERENCES orders(id)
-    )
-  `);
+      db.run(`
+        CREATE TABLE IF NOT EXISTS order_items (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          order_id INTEGER,
+          product_name TEXT,
+          product_price REAL,
+          quantity INTEGER,
+          FOREIGN KEY (order_id) REFERENCES orders(id)
+        )
+      `);
 
-  console.log("Tables created successfully");
-});
+      db.run(`
+        CREATE TABLE IF NOT EXISTS chat_sessions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          session_token TEXT UNIQUE,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      db.run(`
+        CREATE TABLE IF NOT EXISTS chat_messages (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          session_id INTEGER,
+          role TEXT CHECK (role IN ('user', 'assistant')),
+          content TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (session_id) REFERENCES chat_sessions(id)
+        )
+      `, (err) => {
+        if (err) reject(err);
+        else {
+          console.log("Tables created successfully");
+          resolve();
+        }
+      });
+    });
+  });
+}
 
 export default db;
+
