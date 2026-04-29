@@ -31,15 +31,15 @@ const ProductList = () => {
         
         <div className="flex justify-center mb-12 w-full mt-8">
           {/* Filters */}
-          <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar w-full justify-center px-4">
+          <div className="flex flex-wrap gap-3 justify-center w-full px-4">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setCategoryFilter(cat)}
-                className={`px-8 py-3 rounded-full text-sm font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+                className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
                   categoryFilter === cat 
-                  ? 'bg-gray-900 text-white shadow-xl scale-105' 
-                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:scale-105'
+                  ? 'bg-gray-900 text-white shadow-lg scale-105' 
+                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
                 }`}
               >
                 {cat}

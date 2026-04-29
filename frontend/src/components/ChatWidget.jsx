@@ -264,12 +264,12 @@ export default function ChatWidget() {
 
             {/* Suggestions */}
             {messages.length === 1 && !isTyping && (
-              <div className="p-3 bg-white border-t border-gray-100 flex gap-2 overflow-x-auto shrink-0 no-scrollbar">
+              <div className="p-3 bg-white border-t border-gray-100 flex flex-wrap gap-1.5 shrink-0 justify-center">
                 {SUGGESTIONS.map((sug, idx) => (
                   <button 
                     key={idx}
                     onClick={() => handleSend(sug)}
-                    className="whitespace-nowrap text-xs bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 px-3 py-1.5 rounded-full font-medium transition-colors"
+                    className="text-[10px] bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 px-2 py-1 rounded-full font-bold transition-colors uppercase tracking-wider"
                   >
                     {sug}
                   </button>
