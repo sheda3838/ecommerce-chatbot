@@ -24,9 +24,15 @@ This project demonstrates the power of local LLMs in e-commerce. **Mia**, the AI
 
 ### AI Shopping Assistant (Mia)
 - **Natural Language Search:** Mia extracts categories, colors, budget ranges, and styles to query the database automatically.
-- **Order Management:** Users can ask "Where is my order?" or "Cancel my order" and Mia will perform a database lookup.
+- **Dynamic Suggestions:** Mia anticipates user needs by suggesting next actions (e.g., "Check stock", "Reorder item").
+- **Order Management:** Secure order lookups linked to user accounts.
 - **Stock Awareness:** Real-time checking of product availability.
 - **Contextual Memory:** Remembers conversation history within a session.
+
+### User System & Security
+- **Unified Auth:** Comprehensive Signup/Login flow for customers and admins.
+- **Account Dashboard:** Users can track their order history and manage cancellations.
+- **Session Persistence:** Secure user sessions stored in localStorage.
 
 ### E-Commerce Functionality
 - **Dynamic Shop:** Filter and browse products by category and price.
@@ -79,13 +85,14 @@ npm run dev
 
 ---
 
-## Admin Access
-To access the administrative dashboard:
-1. Go to the home page.
-2. **Double-click the Logo** to bring up the hidden login modal.
-3. **Credentials:**
-   - **Username:** `admin`
+## Admin & User Access
+To access the administrative dashboard or user account:
+1. Navigate to the **Sign In** page.
+2. Use the credentials below to access the Admin Dashboard.
+3. **Admin Credentials:**
+   - **Email:** `admin@gmail.com`
    - **Password:** `admin123`
+4. **Test User:** You can create your own account via the **Sign Up** page.
 
 ---
 
@@ -111,9 +118,9 @@ ecommerce-chatbot/
 ## How the AI Works
 The system uses **Intent-Based Tagging** to bridge the gap between LLM text and Database actions:
 - **`[SEARCH]`**: Triggered when Mia has enough info to find products.
-- **`[ORDER_LOOKUP]`**: Triggered when a user provides an email for tracking.
-- **`[CANCEL_ORDER]`**: Triggered when a user wants to void a pending order.
+- **`[ORDER_LOOKUP]`**: Securely fetches order history for the logged-in user.
 - **`[STOCK_CHECK]`**: Triggered when availability questions are asked.
+- **`[SUGGESTIONS]`**: Generates 2-3 logical next steps to guide the user.
 
 **Fallback Logic:** If no exact matches are found for a search, the system intelligently relaxes filters (e.g., ignoring style or color) to suggest the closest alternative products, ensuring the customer never sees a dead-end.
 
@@ -124,7 +131,6 @@ The backend parses these tags, executes SQL queries, and returns structured data
 ## Future Improvements
 - **Image Generation:** Integrate AI to generate product mockups on the fly.
 - **Payment Integration:** Replace demo mode with Stripe/PayPal.
-- **User Auth:** Add full customer accounts and login.
 - **Advanced Analytics:** Heatmaps for product clicks within the chat.
 
 ---
