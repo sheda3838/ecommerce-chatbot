@@ -81,7 +81,8 @@ export default function ChatWidget() {
         content: data.response,
         products: data.products,
         orders: data.orders,
-        hasMoreOrders: data.hasMoreOrders
+        hasMoreOrders: data.hasMoreOrders,
+        suggestions: data.suggestions
       }]);
     } catch (error) {
       setMessages(prev => [...prev, { role: "assistant", content: "Sorry, I'm having trouble connecting right now." }]);
@@ -259,6 +260,21 @@ export default function ChatWidget() {
                       )})}
                     </div>
                   )}
+
+                  {/* Dynamic Suggestions Rendering */}
+                  {idx === messages.length - 1 && msg.role === 'assistant' && msg.suggestions && msg.suggestions.length > 0 && !isTyping && (
+                    <div className="mt-3 flex flex-wrap gap-2 w-full">
+                      {msg.suggestions.map((sug, sIdx) => (
+                        <button
+                          key={sIdx}
+                          onClick={() => handleSend(sug)}
+                          className="text-[10px] bg-white text-blue-600 border border-blue-200 hover:border-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-full font-bold transition-all uppercase tracking-wider shadow-sm active:scale-95"
+                        >
+                          {sug}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -275,21 +291,6 @@ export default function ChatWidget() {
               
               <div ref={messagesEndRef} />
             </div>
-
-            {/* Suggestions */}
-            {messages.length === 1 && !isTyping && (
-              <div className="p-3 bg-white border-t border-gray-100 flex flex-wrap gap-1.5 shrink-0 justify-center">
-                {SUGGESTIONS.map((sug, idx) => (
-                  <button 
-                    key={idx}
-                    onClick={() => handleSend(sug)}
-                    className="text-[10px] bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 px-2 py-1 rounded-full font-bold transition-colors uppercase tracking-wider"
-                  >
-                    {sug}
-                  </button>
-                ))}
-              </div>
-            )}
 
             {/* Input */}
             <div className="p-3 bg-white border-t border-gray-200 shrink-0">

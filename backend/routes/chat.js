@@ -95,6 +95,21 @@ router.post("/", async (req, res) => {
       }
     }
 
+    // Detect [SUGGESTIONS: ...]
+    let suggestions = undefined;
+    const suggestionsRegex = /\[SUGGESTIONS:\s*(.*?)\]/;
+    const suggestionsMatch = response.match(suggestionsRegex);
+    if (suggestionsMatch) {
+      response = response.replace(suggestionsRegex, "").trim();
+      try {
+        // Simple parser for ["a", "b"]
+        const raw = suggestionsMatch[1];
+        suggestions = raw.match(/"([^"]+)"/g).map(s => s.replace(/"/g, ''));
+      } catch (e) {
+        console.error("Failed to parse suggestions", e);
+      }
+    }
+
     // Detect [SEARCH: ...]
     const searchRegex = /\[SEARCH:\s*(.*?)\]/;
     const match = response.match(searchRegex);
@@ -195,6 +210,7 @@ router.post("/", async (req, res) => {
 
     const jsonRes = { response };
     if (products && products.length > 0) jsonRes.products = products;
+    if (suggestions) jsonRes.suggestions = suggestions;
     if (orders) {
       jsonRes.orders = orders;
       jsonRes.hasMoreOrders = req.hasMoreOrders;
