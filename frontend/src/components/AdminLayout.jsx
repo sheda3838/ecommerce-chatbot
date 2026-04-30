@@ -1,18 +1,15 @@
 import React from 'react';
 import { Link, useNavigate, useLocation, Navigate, Outlet } from 'react-router-dom';
 import { LayoutDashboard, Package, ShoppingCart, LogOut, MessageSquare } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isAuth = localStorage.getItem('admin_auth') === 'true';
-
-  if (!isAuth) {
-    return <Navigate to="/" replace />;
-  }
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_auth');
+    logout();
     navigate('/');
   };
 

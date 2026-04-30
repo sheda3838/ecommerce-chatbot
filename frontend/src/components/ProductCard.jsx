@@ -2,11 +2,23 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
   const { cart, addToCart, updateQuantity, setQuantity } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const cartItem = cart.find(item => item.product_id === product.id);
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    addToCart(product);
+  };
 
   return (
     <motion.div 
@@ -72,7 +84,7 @@ const ProductCard = ({ product }) => {
             </div>
           ) : (
             <button 
-              onClick={(e) => { e.stopPropagation(); addToCart(product) }}
+              onClick={handleAddToCart}
               className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-full font-bold hover:bg-black hover:scale-105 transition-all shadow-md text-sm"
             >
               <ShoppingCart size={14} />

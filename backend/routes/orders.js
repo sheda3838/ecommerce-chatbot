@@ -14,15 +14,35 @@ router.get("/", (req, res) => {
   });
 });
 
-// GET customer orders by email
-// GET /api/orders/email/:email
-router.get("/email/:email", (req, res) => {
-  const { email } = req.params;
-  db.all("SELECT * FROM orders WHERE customer_email = ? ORDER BY created_at DESC", [email], (err, rows) => {
+// GET customer orders by user_id
+// GET /api/orders/user/:userId
+router.get("/user/:userId", (req, res) => {
+  const { userId } = req.params;
+  db.all("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC", [userId], (err, rows) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
     res.json(rows);
+  });
+});
+
+// POST cancel order
+// POST /api/orders/:id/cancel
+router.post("/:id/cancel", (req, res) => {
+  const { id } = req.params;
+  
+  db.get("SELECT status FROM orders WHERE id = ?", [id], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!row) return res.status(404).json({ error: "Order not found" });
+    
+    if (row.status !== 'pending') {
+      return res.status(400).json({ error: `Cannot cancel order with status: ${row.status}` });
+    }
+    
+    db.run("UPDATE orders SET status = 'cancelled' WHERE id = ?", [id], function(err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: "Order cancelled successfully" });
+    });
   });
 });
 

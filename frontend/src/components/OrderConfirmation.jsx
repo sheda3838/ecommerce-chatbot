@@ -53,18 +53,9 @@ const OrderConfirmation = () => {
             </div>
           </div>
 
-          <p className="text-sm font-medium text-gray-500 mb-10">
+          <p className="text-sm font-medium text-gray-500">
             A confirmation email has been sent to your inbox.
           </p>
-
-          <Link 
-            to="/"
-            className="bg-gray-900 text-white px-10 py-4 rounded-xl font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl group flex items-center gap-3"
-          >
-            <Home size={18} />
-            Return to Store
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform ml-2" />
-          </Link>
         </div>
       </div>
     </div>

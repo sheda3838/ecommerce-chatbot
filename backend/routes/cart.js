@@ -60,9 +60,9 @@ router.post("/validate", (req, res) => {
 // Checkout (Create Order)
 // POST /api/cart/checkout
 router.post("/checkout", (req, res) => {
-  const { customer_name, customer_email, customer_address, items } = req.body;
+  const { user_id, customer_name, customer_email, customer_phone, customer_address, items } = req.body;
   
-  if (!customer_name || !customer_email || !customer_address || !items || !items.length) {
+  if (!user_id || !customer_name || !customer_email || !customer_address || !items || !items.length) {
     return res.status(400).json({ error: "Missing required fields or empty cart" });
   }
 
@@ -98,9 +98,9 @@ router.post("/checkout", (req, res) => {
       db.run("BEGIN TRANSACTION");
 
       db.run(`
-        INSERT INTO orders (order_number, customer_name, customer_email, customer_address, total_amount)
-        VALUES (?, ?, ?, ?, ?)
-      `, [orderNumber, customer_name, customer_email, customer_address, totalAmount], function(err) {
+        INSERT INTO orders (order_number, user_id, customer_name, customer_email, customer_phone, customer_address, total_amount)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `, [orderNumber, user_id, customer_name, customer_email, customer_phone, customer_address, totalAmount], function(err) {
         if (err) {
           db.run("ROLLBACK");
           return res.status(500).json({ error: err.message });

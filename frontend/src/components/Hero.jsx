@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star } from 'lucide-react';
 
-const Hero = ({ onAdminTrigger }) => {
+const Hero = () => {
   return (
     <div className="relative w-full h-screen bg-white flex flex-col md:flex-row overflow-hidden font-sans">
       
@@ -77,16 +77,6 @@ const Hero = ({ onAdminTrigger }) => {
           <p className="font-bold text-blue-600 text-lg leading-tight mb-2">Minimalist Wardrobe Essentials</p>
           <div className="w-full h-1 bg-blue-600 mt-4"></div>
         </motion.div>
-      </div>
-
-      {/* Logo Overlay */}
-      <div className="absolute top-6 left-6 md:top-8 md:left-16 lg:left-24 z-20">
-        <span 
-          onDoubleClick={onAdminTrigger}
-          className="text-2xl font-black tracking-tighter text-blue-600 cursor-default select-none"
-        >
-          LUMIÈRE
-        </span>
       </div>
 
     </div>

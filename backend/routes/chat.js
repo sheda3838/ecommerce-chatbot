@@ -5,9 +5,9 @@ import db from "../db/db.js";
 const router = express.Router();
 
 // Helper to log chat to database
-const logChatToDB = (sessionToken, role, content) => {
+const logChatToDB = (sessionToken, role, content, userId = null) => {
   return new Promise((resolve, reject) => {
-    db.get("SELECT id FROM chat_sessions WHERE session_token = ?", [sessionToken], (err, row) => {
+    db.get("SELECT id, user_id FROM chat_sessions WHERE session_token = ?", [sessionToken], (err, row) => {
       if (err) return reject(err);
       
       const insertMessage = (sessionId) => {
@@ -16,9 +16,13 @@ const logChatToDB = (sessionToken, role, content) => {
       };
 
       if (row) {
+        // If user logged in during session, update user_id
+        if (userId && !row.user_id) {
+          db.run("UPDATE chat_sessions SET user_id = ? WHERE id = ?", [userId, row.id]);
+        }
         insertMessage(row.id);
       } else {
-        db.run("INSERT INTO chat_sessions (session_token) VALUES (?)", [sessionToken], function(err) {
+        db.run("INSERT INTO chat_sessions (session_token, user_id) VALUES (?, ?)", [sessionToken, userId], function(err) {
           if (err) return reject(err);
           insertMessage(this.lastID);
         });
@@ -29,57 +33,42 @@ const logChatToDB = (sessionToken, role, content) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { message, sessionToken } = req.body;
+    const { message, sessionToken, userId } = req.body;
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
     }
 
     // Log user message asynchronously
-    logChatToDB(sessionToken, "user", message).catch(e => console.error("DB Log error:", e));
+    logChatToDB(sessionToken, "user", message, userId).catch(e => console.error("DB Log error:", e));
 
     let response = await getAIResponse(message, sessionToken);
     let products = undefined;
     let orders = undefined;
-    let cancellation = undefined;
 
-    // Detect [ORDER_LOOKUP: email="..."]
-    const orderRegex = /\[ORDER_LOOKUP:\s*email="(.*?)"\]/;
-    const orderMatch = response.match(orderRegex);
-    if (orderMatch) {
+    // Detect [ORDER_LOOKUP]
+    const orderRegex = /\[ORDER_LOOKUP\]/;
+    if (orderRegex.test(response)) {
       response = response.replace(orderRegex, "").trim();
-      const email = orderMatch[1];
       
-      orders = await new Promise((resolve) => {
-        db.all("SELECT * FROM orders WHERE customer_email = ? ORDER BY created_at DESC", [email], (err, rows) => {
-          resolve(rows || []);
+      if (!userId) {
+        response = "I'm sorry, I need you to be logged in to check your orders. Please sign in first! 😊";
+      } else {
+        const result = await new Promise((resolve) => {
+          // Fetch 6 to check if there are more than 5
+          db.all("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 6", [userId], (err, rows) => {
+            resolve(rows || []);
+          });
         });
-      });
-      
-      if (orders.length > 0) {
-        response = `I found ${orders.length} order${orders.length > 1 ? 's' : ''} for ${email}. Take a look at them below 😊`;
-      } else {
-        response = `I couldn't find any orders matching the email ${email}. Are you sure that's the one you used?`;
-      }
-    }
-
-    // Detect [CANCEL_ORDER: id="..."]
-    const cancelRegex = /\[CANCEL_ORDER:\s*id="(.*?)"\]/;
-    const cancelMatch = response.match(cancelRegex);
-    if (cancelMatch) {
-      response = response.replace(cancelRegex, "").trim();
-      const orderNum = cancelMatch[1];
-      
-      const order = await new Promise((resolve) => {
-        db.get("SELECT * FROM orders WHERE order_number = ?", [orderNum], (err, row) => resolve(row));
-      });
-      
-      if (!order) {
-        response = `I couldn't find order #${orderNum}. Please check the number and try again.`;
-      } else if (order.status !== 'pending') {
-        response = `Order #${orderNum} is currently ${order.status}. Only pending orders can be cancelled.`;
-      } else {
-        response = `I've located your order #${orderNum}. It's still pending, so I can cancel it for you. Click the button below to confirm!`;
-        cancellation = order;
+        
+        if (result.length > 0) {
+          const hasMore = result.length > 5;
+          orders = result.slice(0, 5);
+          response = `I found your recent orders. Take a look at them below 😊`;
+          // We'll attach hasMoreOrders to the final response
+          req.hasMoreOrders = hasMore;
+        } else {
+          response = `I couldn't find any orders for your account yet. Time to go shopping? 🛍️`;
+        }
       }
     }
 
@@ -202,12 +191,14 @@ router.post("/", async (req, res) => {
     }
 
     // Log AI response asynchronously
-    logChatToDB(sessionToken, "assistant", response).catch(e => console.error("DB Log error:", e));
+    logChatToDB(sessionToken, "assistant", response, userId).catch(e => console.error("DB Log error:", e));
 
     const jsonRes = { response };
     if (products && products.length > 0) jsonRes.products = products;
-    if (orders) jsonRes.orders = orders;
-    if (cancellation) jsonRes.cancellation = cancellation;
+    if (orders) {
+      jsonRes.orders = orders;
+      jsonRes.hasMoreOrders = req.hasMoreOrders;
+    }
 
     res.json(jsonRes);
   } catch (error) {

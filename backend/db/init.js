@@ -21,15 +21,31 @@ export function initDb() {
       `);
 
       db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          email TEXT UNIQUE NOT NULL,
+          password TEXT NOT NULL,
+          phone TEXT,
+          address TEXT,
+          role TEXT DEFAULT 'user',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      db.run(`
         CREATE TABLE IF NOT EXISTS orders (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           order_number TEXT UNIQUE,
+          user_id INTEGER,
           customer_name TEXT NOT NULL,
           customer_email TEXT NOT NULL,
+          customer_phone TEXT,
           customer_address TEXT NOT NULL,
           total_amount REAL NOT NULL,
           status TEXT DEFAULT 'pending',
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users(id)
         )
       `);
 
@@ -48,7 +64,9 @@ export function initDb() {
         CREATE TABLE IF NOT EXISTS chat_sessions (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           session_token TEXT UNIQUE,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          user_id INTEGER,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users(id)
         )
       `);
 

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -9,6 +11,8 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`http://localhost:3000/api/products/${id}`)
@@ -27,6 +31,10 @@ const ProductDetail = () => {
   if (!product || product.error) return <div className="min-h-screen flex items-center justify-center font-bold text-red-500">Product not found.</div>;
 
   const handleAdd = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     addToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);

@@ -3,16 +3,8 @@ import db from "../db/db.js";
 
 const router = express.Router();
 
-// 1. Admin Authentication
-// POST /api/admin/login
-router.post("/login", (req, res) => {
-  const { username, password } = req.body;
-  if (username === "admin" && password === "admin123") {
-    // Return a dummy token for frontend validation
-    return res.json({ token: "admin-secret-token-123", message: "Login successful" });
-  }
-  res.status(401).json({ error: "Invalid credentials" });
-});
+// Admin statistics and management routes
+// All routes below are protected by role-based access on the frontend and should be protected by middleware on the backend (optional, but good for security).
 
 // 2. Dashboard Stats
 // GET /api/admin/stats

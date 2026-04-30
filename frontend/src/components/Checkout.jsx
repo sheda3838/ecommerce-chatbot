@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShoppingBag, ArrowLeft, Loader2, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { cart, clearCart } = useCart();
+  const { user } = useAuth();
   
   const [validatedItems, setValidatedItems] = useState([]);
   const [totals, setTotals] = useState({ subtotal: 0, shipping: 0, total: 0 });
@@ -15,10 +17,10 @@ const Checkout = () => {
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
-    customer_name: '',
-    customer_email: '',
-    customer_address: '',
-    phone: '',
+    customer_name: user?.name || '',
+    customer_email: user?.email || '',
+    customer_address: user?.address || '',
+    customer_phone: user?.phone || '',
     notes: ''
   });
 
@@ -84,10 +86,11 @@ const Checkout = () => {
 
     try {
       const payload = {
+        user_id: user.id,
         customer_name: formData.customer_name,
         customer_email: formData.customer_email,
         customer_address: formData.customer_address,
-        phone: formData.phone,
+        customer_phone: formData.customer_phone,
         notes: formData.notes,
         items: cart.map(item => ({ product_id: item.product_id, quantity: item.quantity }))
       };
@@ -130,11 +133,6 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-6xl mx-auto">
-        <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 font-bold transition-colors">
-          <ArrowLeft size={20} />
-          Back to Store
-        </Link>
-
         <div className="grid lg:grid-cols-12 gap-12">
           
           {/* Form Section */}
@@ -179,8 +177,8 @@ const Checkout = () => {
                 <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
                 <input 
                   type="tel" 
-                  name="phone"
-                  value={formData.phone}
+                  name="customer_phone"
+                  value={formData.customer_phone}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all" 
                   placeholder="+1 (555) 000-0000" 

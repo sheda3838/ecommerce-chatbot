@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, ShoppingBag, Plus, Minus, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 
 const SUGGESTIONS = [
@@ -24,6 +25,7 @@ export default function ChatWidget() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const { cart, addToCart, updateQuantity, setQuantity } = useCart();
+  const { user } = useAuth();
   const [sessionToken, setSessionToken] = useState("");
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export default function ChatWidget() {
       const res = await fetch("http://localhost:3000/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, sessionToken })
+        body: JSON.stringify({ message: text, sessionToken, userId: user?.id })
       });
       
       const data = await res.json();
@@ -79,7 +81,7 @@ export default function ChatWidget() {
         content: data.response,
         products: data.products,
         orders: data.orders,
-        cancellation: data.cancellation
+        hasMoreOrders: data.hasMoreOrders
       }]);
     } catch (error) {
       setMessages(prev => [...prev, { role: "assistant", content: "Sorry, I'm having trouble connecting right now." }]);
@@ -92,6 +94,27 @@ export default function ChatWidget() {
 
   const handleAddToCart = (product) => {
     addToCart(product);
+  };
+
+  const handleCancelOrder = async (orderId, orderNumber) => {
+    if (!window.confirm(`Are you sure you want to cancel order #${orderNumber}?`)) return;
+    
+    try {
+      const res = await fetch(`http://localhost:3000/api/orders/${orderId}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      
+      if (res.ok) {
+        setMessages(prev => [...prev, { role: "assistant", content: `Order #${orderNumber} has been successfully cancelled.` }]);
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to cancel order");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error cancelling order");
+    }
   };
 
   return (
@@ -144,42 +167,33 @@ export default function ChatWidget() {
                               'bg-blue-100 text-blue-700'
                             }`}>{order.status}</span>
                           </div>
-                          <p className="text-xs text-gray-500 mt-2 flex justify-between">
-                            <span>Total: ${order.total_amount.toFixed(2)}</span>
-                            <span>{new Date(order.created_at).toLocaleDateString()}</span>
-                          </p>
+                          <div className="flex justify-between items-end mt-2">
+                            <div className="text-xs text-gray-500">
+                              <p>Total: <span className="font-bold text-gray-900">${order.total_amount.toFixed(2)}</span></p>
+                              <p>{new Date(order.created_at).toLocaleDateString()}</p>
+                            </div>
+                            {order.status === 'pending' && (
+                              <button 
+                                onClick={() => handleCancelOrder(order.id, order.order_number)}
+                                className="text-[10px] bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1 rounded font-bold transition-colors border border-red-100"
+                              >
+                                Cancel
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
+                      {msg.hasMoreOrders && (
+                        <Link 
+                          to="/shop" 
+                          onClick={() => setIsOpen(false)}
+                          className="block text-center text-[10px] font-bold text-blue-600 hover:underline uppercase tracking-widest mt-2"
+                        >
+                          View My Orders
+                        </Link>
+                      )}
                     </div>
-                  )}
-
-                  {/* Cancellation Rendering */}
-                  {msg.cancellation && (
-                    <div className="mt-2 w-[90%] bg-white border border-red-200 rounded-xl p-3 shadow-sm flex flex-col gap-2">
-                      <p className="text-sm font-bold text-gray-900">Order #{msg.cancellation.order_number}</p>
-                      <p className="text-xs text-gray-500">Total: ${msg.cancellation.total_amount.toFixed(2)}</p>
-                      <button 
-                        onClick={async () => {
-                          try {
-                            const res = await fetch(`http://localhost:3000/api/orders/${msg.cancellation.id}/status`, {
-                              method: "PUT",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ status: "cancelled" })
-                            });
-                            if (res.ok) {
-                              setMessages(prev => [...prev, { role: "assistant", content: `Order #${msg.cancellation.order_number} has been successfully cancelled.` }]);
-                            }
-                          } catch (err) {
-                            console.error(err);
-                          }
-                        }}
-                        className="mt-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs py-2 rounded transition-colors w-full border border-red-200"
-                      >
-                        Confirm Cancellation
-                      </button>
-                    </div>
-                  )}
-                  
+                  )}                  
                   {/* Product Cards Rendering */}
                   {msg.products && msg.products.length > 0 && (
                     <div className="mt-2 w-[90%] space-y-2">
